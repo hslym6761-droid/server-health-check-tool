@@ -61,7 +61,7 @@ check_server() {
 
 	log_info " --- checking the server : $server ---"
 	#use an SSH her-document to send a batch of commands in one connection
-	ssh -n -o ConnecTimeout=5 "${user}@${server}" << 'EOF'
+	ssh -n -o ConnectTimeout=5 "${user}@${server}" << 'EOF'
 #uptime check
 echo "--- system uptime --- "
 uptime
@@ -94,7 +94,7 @@ main() {
 	local server_file=""
 	local remote_user=""
 	#---argument passing using "getops---
-	while getops ":f:u:h" opt ; do
+	while getopts ":f:u:h" opt ; do
 		case "$opt" in
 			f)
 				server_file="$OPTARG"
@@ -127,7 +127,7 @@ main() {
 		exit 1
 	fi
 
-	if [[ -f "$server_file" ]] ; then
+	if [[ ! -f "$server_file" ]] ; then
 		log_error "server file not found : $server_file "
 		exit 1
 	fi
@@ -155,7 +155,7 @@ main() {
 
 
 	log_info " configuration valid , starting health check "
-	lof_info "found ${#servers[@]} servers ro check , starting ... "
+	log_info "found ${#servers[@]} servers ro check , starting ... "
 
 
 	#check the array items
