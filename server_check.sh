@@ -61,4 +61,66 @@ check_server() {
 
 	log_info " --- checking the server : $server ---"
 	#use an SSH her-document to send a batch of commands in one connection
+	ssh -n -o ConnecTimeout=5 "${user}@${server}" << 'EOF'
+#uptime check
+echo "--- system uptime --- "
+uptime
+
+
+#disk check (root partition)
+echo " disk usage of root partition "
+df -h / | awk 'NR==2 {print "used : " , $5 , " (" , $3 , "/" , $2 , ")"}'
+
+#memory check
+echo "memory usage "
+free -m | awk 'NR=2 {printf "used : %sMB / total : %sMB (%.2f%%)\n" , $3 , $2 , ($3/$2)*100}'
+
+#security check 
+echo "security check "
+AUTH_LOG="/var/log/auth.log"
+if [[ -f "$AUTH_LOG" ]] ; then
+count=$(grep -c "Failed password" "$AUTH_LOG")
+echo " failed ssh attempts : $count"
+else
+echo "failed ssh attempts : auth log not found"
+fi
+EOF
+	log_info "--- finished check : $server ---"
+}
+
+
+#main function of the script
+main() {
+	local server_file=""
+	local remote_user=""
+	#---argument passing using "getops---
+	while getops ":f:u:h" opt ; do
+		case "$opt" in
+			f)
+				server_file="$OPTARG"
+				;;
+			u)
+				remote_user="$OPTARG"
+				;;
+			h)
+				print_usage
+				exit 0 
+				;;
+			\?) #invalid flag
+				log_error "invalid option : $OPTARG "
+				print_usage
+				exit 1
+				;;
+			:)#missing value
+				log_error "requir an argument"
+				print_usage
+				exit 1
+				;;
+		esac
+	done
+
+
+	#----input validation ----
 	
+
+
