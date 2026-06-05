@@ -1,8 +1,5 @@
 #servers ip
-192.168.27.221
-
-
-192.168.27.221
-
-#the end 
+192.168.1.1
+server2.example.com
+server3.example.com
 
