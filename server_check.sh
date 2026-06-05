@@ -121,6 +121,56 @@ main() {
 
 
 	#----input validation ----
-	
+	if [[ -z "$server_file" || -z "$remote_user" ]] ; then
+		log_error "missing required argument"
+		print_usage
+		exit 1
+	fi
+
+	if [[ -f "$server_file" ]] ; then
+		log_error "server file not found : $server_file "
+		exit 1
+	fi
+
+
+
+	#define an empty array to hold the servers
+	declare -a servers=()
+
+	#read the server file line by line
+	while IFS= read -r line ; do
+		#skip empty lines and comments lines
+		if [[ -z "$line" || "$line" == \#* ]] ; then
+			continue
+		fi
+		# add the server to the array
+		servers+=("$line")
+	done < "$server_file"
+
+
+	if [[ "${#servers[@]}" -eq 0 ]] ; then
+		log_error "no servers found in $server_file , exiting "
+		exit 1
+	fi
+
+
+	log_info " configuration valid , starting health check "
+	lof_info "found ${#servers[@]} servers ro check , starting ... "
+
+
+	#check the array items
+	for server_host in "${servers[@]}" ; do
+		check_server "$server_host" "$remote_user"
+	done
+	log_info "all checks completed"
+}
+#-----excution------
+main "$@"
+#
+#
+#
+#
+#
+
 
 
