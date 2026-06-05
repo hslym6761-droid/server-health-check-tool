@@ -61,29 +61,9 @@ check_server() {
 
 	log_info " --- checking the server : $server ---"
 	#use an SSH her-document to send a batch of commands in one connection
-	ssh -n -o ConnectTimeout=5 "${user}@${server}" << 'EOF'
-#uptime check
-echo "--- system uptime --- "
-uptime
-
-
-#disk check (root partition)
-echo " disk usage of root partition "
-df -h / | awk 'NR==2 {print "used : " , $5 , " (" , $3 , "/" , $2 , ")"}'
-
-#memory check
-echo "memory usage "
-free -m | awk 'NR=2 {printf "used : %sMB / total : %sMB (%.2f%%)\n" , $3 , $2 , ($3/$2)*100}'
-
-#security check 
-echo "security check "
-AUTH_LOG="/var/log/auth.log"
-if [[ -f "$AUTH_LOG" ]] ; then
-count=$(grep -c "Failed password" "$AUTH_LOG")
-echo " failed ssh attempts : $count"
-else
-echo "failed ssh attempts : auth log not found"
-fi
+	ssh -o ConnectTimeout=5 "${user}@${server}" << 'EOF'
+echo "HELLO FROM REMOTE SERVER"
+hostname
 EOF
 	log_info "--- finished check : $server ---"
 }
